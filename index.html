@@ -49,12 +49,12 @@ footer{text-align:center;padding:30px;color:var(--muted)}
 <body>
 <header><div class="head">
 <div class="logo">L</div><div class="brand"><b>Libas National High School</b><small>Student Handbook • Interactive Edition</small></div>
-<div class="head-actions"><button class="hbtn" id="install" hidden>Install</button><button class="hbtn" id="theme">Dark</button></div>
+<div class="head-actions"><button class="hbtn" id="homeBtn">Home</button><button class="hbtn" id="install" hidden>Install</button><button class="hbtn" id="theme">Dark</button></div>
 </div></header>
 
 <div class="container">
 <section class="dashboard">
-<div class="hero"><div class="eyebrow" style="color:#f8d77d">LIBAS NHS DIGITAL HANDBOOK</div>
+<div class="hero"><div id="progressText" style="font-size:.8rem;opacity:.85;margin-bottom:6px">Reading progress: 0%</div><div class="eyebrow" style="color:#f8d77d">LIBAS NHS DIGITAL HANDBOOK</div>
 <h1>Student Hub</h1><p>Everything students and parents need to know about school policies, responsibilities, services, discipline, and procedures—organized for quick access.</p></div>
 <div class="quick">
 <button class="q" onclick="openTool('emergency')"><strong>🆘 Emergency Info</strong><span>Keep important contact details handy</span></button>
@@ -63,6 +63,10 @@ footer{text-align:center;padding:30px;color:var(--muted)}
 <button class="q" onclick="openTool('about')"><strong>ℹ️ About</strong><span>How to use this digital handbook</span></button>
 </div></section>
 
+<div class="important" style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
+  <span><b>Libas NHS Student Handbook</b> • Digital Edition</span>
+  <span style="font-size:.82rem;color:var(--muted)">Version 2.1 • Updated Aug. 2026</span>
+</div>
 <div id="tools">
 <button class="tool" onclick="openTool('emergency')"><b>🆘 Emergency Card</b><small>Personal emergency information</small></button>
 <button class="tool" onclick="openTool('ack')"><b>✍️ Acknowledgement</b><small>Complete before submission</small></button>
@@ -83,7 +87,7 @@ footer{text-align:center;padding:30px;color:var(--muted)}
 
 <div id="ack" class="panel">
 <h2>Parent / Student Acknowledgement</h2>
-<div class="important">The original handbook states that the responsibility statement must be signed and returned within one week after receipt. </div>
+<div class="important">The original handbook states that the responsibility statement must be signed and returned within one week after receipt.</div>
 <input class="field" id="ackStudent" placeholder="Student's name">
 <input class="field" id="ackDate" type="date">
 <label><input type="checkbox" id="ackAgree"> I confirm that I have read and understood the handbook and agree to follow its regulations.</label>
@@ -95,12 +99,12 @@ footer{text-align:center;padding:30px;color:var(--muted)}
 <h2>Handbook Knowledge Check</h2>
 <p>Answer these questions based on the supplied handbook.</p>
 <div id="quizArea"></div>
-<button class="primary" onclick="gradeQuiz()">Check Score</button><div class="result" id="quizResult"></div>
+<button class="primary" onclick="gradeQuiz()">Check Score</button> <button class="secondary" onclick="resetQuiz()">Reset</button><div class="result" id="quizResult"></div>
 </div>
 
 <div id="about" class="panel">
 <h2>About this PWA</h2>
-<p>This Version 2 transforms the supplied 13-page handbook into an app-style experience. The handbook text remains the source content; the added dashboard, search, quiz, local form storage, dark mode, installation support, and offline caching are digital presentation features.</p>
+<p>This Version 2.1 transforms the supplied 13-page handbook into an app-style experience. The handbook text remains the source content; the added dashboard, search, quiz, local form storage, dark mode, installation support, and offline caching are digital presentation features.</p>
 <p><b>Privacy:</b> the emergency card and acknowledgement fields are saved locally in the browser using localStorage. They are not sent to a server by this PWA.</p>
 </div>
 
@@ -221,6 +225,16 @@ Makabansa</p></div>
 <footer>Libas National High School • Interactive Student Handbook V2</footer>
 
 <script>
+
+document.getElementById('homeBtn').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+function updateProgress(){
+  const max=document.documentElement.scrollHeight-window.innerHeight;
+  const pct=max>0?Math.min(100,Math.round(window.scrollY/max*100)):0;
+  const el=document.getElementById('progressText'); if(el) el.textContent='Reading progress: '+pct+'%';
+}
+window.addEventListener('scroll',updateProgress,{passive:true});
+updateProgress();
+
 const search=document.getElementById('search');
 const chapters=[...document.querySelectorAll('.chapter')];
 const links=[...document.querySelectorAll('.chapter-link')];
@@ -253,6 +267,10 @@ const quiz=[
 ];
 quizArea.innerHTML=quiz.map((q,i)=>`<div class="quiz-q"><b>${i+1}. ${q[0]}</b>${q[2].map((o,j)=>`<label><input type="radio" name="q${i}" value="${escJS(o)}"> ${o}</label>`).join('')}</div>`).join('');
 function escJS(s){return s.replaceAll('"','&quot;').replaceAll("'","&#39;")}
+function resetQuiz(){
+  document.querySelectorAll('#quiz input[type=radio]').forEach(x=>x.checked=false);
+  quizResult.textContent='';
+}
 function gradeQuiz(){let score=0;quiz.forEach((q,i)=>{let a=document.querySelector(`input[name="q${i}"]:checked`);if(a&&a.value===q[1])score++});quizResult.textContent=`Score: ${score} / ${quiz.length}`;}
 document.getElementById('theme').onclick=()=>{document.documentElement.classList.toggle('dark');localStorage.setItem('libasTheme',document.documentElement.classList.contains('dark'))};
 if(localStorage.getItem('libasTheme')==='true')document.documentElement.classList.add('dark');
